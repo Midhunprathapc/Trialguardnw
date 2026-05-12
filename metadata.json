@@ -1,0 +1,12 @@
+{
+  "name": "TrialGuard",
+  "description": "A privacy-first, zero-cost trial tracker that uses on-device OCR to safely manage subscriptions without linking bank accounts.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "OCR",
+    "Subscription Tracking",
+    "Privacy-Focused"
+  ]
+}

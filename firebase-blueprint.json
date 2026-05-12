@@ -1,0 +1,74 @@
+{
+  "entities": {
+    "Trial": {
+      "title": "Trial",
+      "description": "Represents a subscription trial tracked by the user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user who owns this trial." },
+        "serviceName": { "type": "string", "description": "Name of the service (e.g., Netflix)." },
+        "startDate": { "type": "string", "format": "date-time", "description": "When the trial started." },
+        "durationDays": { "type": "integer", "description": "Number of days the trial lasts." },
+        "reminderDaysBefore": { "type": "integer", "description": "How many days before expiry to notify." },
+        "status": { "type": "string", "enum": ["active", "cancelled", "expired"] },
+        "cancelUrl": { "type": "string", "description": "Direct link to cancel the service." },
+        "price": { "type": "number", "description": "Monthly price after trial." },
+        "currency": { "type": "string", "description": "Currency code (e.g. USD)." },
+        "category": { "type": "string", "enum": ["Entertainment", "Productivity", "Utilities", "Health", "Other"] },
+        "isAiScanned": { "type": "boolean" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "serviceName", "startDate", "durationDays"]
+    },
+    "User": {
+      "title": "User",
+      "description": "Profile data for the user.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "preferences": {
+          "type": "object",
+          "properties": {
+            "notificationsEnabled": { "type": "boolean" }
+          }
+        }
+      },
+      "required": ["email"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "A daily expense entry for life tracking.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "date": { "type": "string", "format": "date", "description": "ISO date YYYY-MM-DD" },
+        "time": { "type": "string", "description": "Time of expense HH:mm" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "description": "Currency code (e.g. USD)" },
+        "category": { "type": "string" },
+        "isUnwanted": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "date", "description", "amount"]
+    }
+  },
+  "firestore": {
+    "/trials/{trialId}": {
+      "schema": "Trial",
+      "description": "User subscription trials."
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles."
+    },
+    "/expenses/{expenseId}": {
+      "schema": "Expense",
+      "description": "Daily expense tracking entries."
+    }
+  }
+}

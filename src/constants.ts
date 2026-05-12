@@ -1,0 +1,31 @@
+export const SERVICE_CANCEL_LINKS: Record<string, string> = {
+  'Netflix': 'https://www.netflix.com/cancelplan',
+  'Adobe': 'https://account.adobe.com/plans',
+  'Spotify': 'https://www.spotify.com/account/subscription/change/',
+  'Hulu': 'https://secure.hulu.com/account/cancel',
+  'Disney+': 'https://www.disneyplus.com/account/subscription',
+  'Amazon Prime': 'https://www.amazon.com/mc/manage/prime',
+  'YouTube Premium': 'https://www.youtube.com/paid_memberships',
+  'Apple Music': 'https://music.apple.com/account',
+  'Canva': 'https://www.canva.com/settings/billing-and-plans',
+  'Microsoft 365': 'https://account.microsoft.com/services/',
+  'HBO Max': 'https://www.max.com/account',
+  'Paramount+': 'https://www.paramountplus.com/account/',
+  'Peacock': 'https://www.peacocktv.com/account/settings',
+  'Crunchyroll': 'https://www.crunchyroll.com/account/membership',
+  'Skillshare': 'https://www.skillshare.com/settings/payments',
+  'LinkedIn Premium': 'https://www.linkedin.com/premium/manage',
+  'Audible': 'https://www.audible.com/account/overview',
+  'Dropbox': 'https://www.dropbox.com/account/plan',
+  'Slack': 'https://slack.com/help/articles/202288968-Cancel-a-paid-plan',
+  'Zoom': 'https://zoom.us/billing/plan',
+};
+
+export const TRIAL_DURATIONS = [
+  { label: '3 Days', value: 3 },
+  { label: '5 Days', value: 5 },
+  { label: '7 Days', value: 7 },
+  { label: '14 Days', value: 14 },
+  { label: '30 Days', value: 30 },
+  { label: '1 Year', value: 365 },
+];

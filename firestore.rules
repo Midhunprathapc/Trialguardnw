@@ -1,0 +1,84 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Helpers
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Logic for User Entity
+    function isValidUser(data) {
+      return data.email is string &&
+             data.email.size() <= 200 &&
+             (data.keys().hasAll(['email']) && data.keys().size() >= 1);
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && isValidUser(incoming()) &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'photoURL', 'preferences']);
+    }
+
+    // Logic for Trial Entity
+    function isValidTrial(data) {
+      return data.userId == request.auth.uid &&
+             data.serviceName is string && data.serviceName.size() <= 100 &&
+             data.startDate is string &&
+             data.durationDays is int && data.durationDays >= 1 &&
+             (data.status in ['active', 'cancelled', 'expired']) &&
+             (!('price' in data) || data.price is number) &&
+             (!('currency' in data) || data.currency is string) &&
+             (!('category' in data) || (data.category is string && data.category in ['Entertainment', 'Productivity', 'Utilities', 'Health', 'Other'])) &&
+             (!('isAiScanned' in data) || data.isAiScanned is bool) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000)) &&
+             (data.keys().hasAll(['userId', 'serviceName', 'startDate', 'durationDays', 'status']));
+    }
+
+    match /trials/{trialId} {
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidTrial(incoming()) && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && isValidTrial(incoming()) &&
+                    incoming().userId == existing().userId &&
+                    (
+                      // Action: Cancel
+                      (incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']) && incoming().status == 'cancelled') ||
+                      // Action: Edit
+                      (incoming().diff(existing()).affectedKeys().hasOnly(['serviceName', 'startDate', 'durationDays', 'reminderDaysBefore', 'cancelUrl', 'notes', 'updatedAt', 'price', 'currency', 'isAiScanned', 'category']))
+                    );
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Logic for Expense Entity
+    function isValidExpense(data) {
+      return data.userId == request.auth.uid &&
+             data.date is string && data.date.matches('^\\d{4}-\\d{2}-\\d{2}$') &&
+             (!('time' in data) || (data.time is string && data.time.matches('^\\d{2}:\\d{2}$'))) &&
+             data.description is string && data.description.size() <= 200 &&
+             data.amount is number &&
+             (!('currency' in data) || data.currency is string) &&
+             (!('category' in data) || data.category is string) &&
+             (!('isUnwanted' in data) || data.isUnwanted is bool) &&
+             (data.keys().hasAll(['userId', 'date', 'description', 'amount']));
+    }
+
+    match /expenses/{expenseId} {
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidExpense(incoming());
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && isValidExpense(incoming()) &&
+                    incoming().userId == existing().userId &&
+                    incoming().date == existing().date; // Date is immutable for simplicity of day-wise view
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+  }
+}
